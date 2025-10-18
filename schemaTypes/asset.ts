@@ -6,19 +6,6 @@ export const asset = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'type',
-      title: 'Type',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Folder', value: 'folder'},
-          {title: 'Image', value: 'image'},
-        ],
-        layout: 'radio',
-      },
-      validation: (Rule) => Rule.required().valid(['folder', 'image']),
-    }),
-    defineField({
       name: 'title',
       title: 'Title',
       type: 'string',
@@ -36,9 +23,8 @@ export const asset = defineType({
     }),
     defineField({
       name: 'image',
-      title: 'Image',
+      title: 'Image File',
       type: 'image',
-      hidden: ({parent}) => parent?.type !== 'image',
       options: {
         hotspot: true,
         aiAssist: {imageDescriptionField: 'alt'},
@@ -46,45 +32,25 @@ export const asset = defineType({
       fields: [
         defineField({
           name: 'alt',
-          title: 'Alternative text',
+          title: 'Alternative Text',
           type: 'string',
-          validation: (Rule) => Rule.custom(() => true),
+          description: 'Important for accessibility and SEO',
+          validation: (Rule) => Rule.required().error('Alt text is required for accessibility'),
+        }),
+        defineField({
+          name: 'caption',
+          title: 'Caption',
+          type: 'string',
+          description: 'Optional caption that will appear with the image',
         }),
       ],
-      validation: (Rule) => Rule.custom(() => true),
+      validation: (Rule) => Rule.required().error('Image is required for assets'),
     }),
     defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
-    }),
-    defineField({
-      name: 'parentFolder',
-      title: 'Parent Folder',
-      type: 'reference',
-      to: [{type: 'asset'}],
-      options: {
-        filter: 'type == "folder"',
-      },
-      validation: (Rule) => Rule.custom(() => true),
-    }),
-    defineField({
-      name: 'color',
-      title: 'Folder Color',
-      type: 'string',
-      hidden: ({parent}) => parent?.type !== 'folder',
-      options: {
-        list: [
-          {title: 'Blue', value: 'blue'},
-          {title: 'Green', value: 'green'},
-          {title: 'Yellow', value: 'yellow'},
-          {title: 'Red', value: 'red'},
-          {title: 'Purple', value: 'purple'},
-          {title: 'Orange', value: 'orange'},
-          {title: 'Gray', value: 'gray'},
-        ],
-        layout: 'radio',
-      },
+      rows: 3,
     }),
     defineField({
       name: 'tags',
@@ -95,5 +61,31 @@ export const asset = defineType({
         layout: 'tags',
       },
     }),
+  ],
+  preview: {
+    select: {
+      title: 'title',
+      image: 'image',
+      description: 'description',
+    },
+    prepare({title, image, description}) {
+      return {
+        title: `🖼️ ${title}`,
+        subtitle: description || 'Image Asset',
+        media: image,
+      }
+    },
+  },
+  orderings: [
+    {
+      title: 'Title',
+      name: 'title',
+      by: [{field: 'title', direction: 'asc'}],
+    },
+    {
+      title: 'Modified Date',
+      name: '_updatedAt',
+      by: [{field: '_updatedAt', direction: 'desc'}],
+    },
   ],
 })
