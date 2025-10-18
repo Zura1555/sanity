@@ -87,4 +87,42 @@ export const post = defineType({
       },
     }),
   ],
+  views: [
+    // Main editing view
+    {
+      name: 'editor',
+      title: 'Editor',
+      type: 'form',
+    },
+    // Draft version view - shows draft content
+    {
+      name: 'draft',
+      title: '📝 Draft Version',
+      type: 'form',
+      options: {
+        perspective: 'drafts',
+        // Only show fields that are relevant for drafts
+      },
+    },
+    // Published version view - shows published content
+    {
+      name: 'published', 
+      title: '✅ Published Version',
+      type: 'form',
+      options: {
+        perspective: 'published',
+        // Only show fields that are relevant for published content
+      },
+    },
+    // Side-by-side comparison view
+    {
+      name: 'comparison',
+      title: '🔄 Draft vs Published',
+      type: 'component',
+      component: ({document}) => {
+        // This would be a custom component for comparison
+        return null
+      },
+    },
+  ],
 })

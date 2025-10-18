@@ -20,9 +20,9 @@ export default defineConfig({
           .title('Content')
           .items([
             S.listItem()
-              .title('Blog Posts')
+              .title('Posts')
               .icon(icons.ArticleIcon)
-              .child(S.documentTypeList('post').title('Blog Posts')),
+              .child(S.documentTypeList('post').title('Posts')),
             S.listItem()
               .title('Authors')
               .icon(icons.UserIcon)
@@ -32,7 +32,7 @@ export default defineConfig({
               .icon(icons.TagsIcon)
               .child(S.documentTypeList('category').title('Categories')),
             S.listItem()
-              .title('Asset')
+              .title('Assets')
               .icon(icons.ImageIcon)
               .child(
                 S.documentTypeList('asset')
