@@ -7,7 +7,7 @@ import {asset} from './asset'
 
 // Object/Array types
 import {blockContent} from './blockContent'
-import {code} from './code'
+import {codeExample} from './code'
 import {link} from './link'
 import {infoSection} from './infoSection'
 import {callToAction} from './callToAction'
@@ -21,7 +21,7 @@ export const schemaTypes = [
   asset,
   // Object/Array types
   blockContent,
-  code,
+  codeExample,
   link,
   infoSection,
   callToAction,

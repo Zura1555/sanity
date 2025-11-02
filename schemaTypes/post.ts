@@ -37,7 +37,6 @@ export const post = defineType({
       type: 'image',
       options: {
         hotspot: true,
-        aiAssist: {imageDescriptionField: 'alt'},
       },
       fields: [
         defineField({
@@ -48,6 +47,24 @@ export const post = defineType({
         }),
       ],
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'codeExample',
+      title: 'Code Example',
+      type: 'code',
+      description: 'Include a code example related to this post',
+      options: {
+        language: 'javascript',
+        languageAlternatives: [
+          {title: 'JavaScript', value: 'javascript'},
+          {title: 'TypeScript', value: 'typescript'},
+          {title: 'HTML', value: 'html'},
+          {title: 'CSS', value: 'css'},
+          {title: 'JSON', value: 'json'},
+          {title: 'Python', value: 'python'},
+        ],
+        withFilename: true,
+      },
     }),
     defineField({
       name: 'date',
@@ -86,43 +103,5 @@ export const post = defineType({
         layout: 'tags',
       },
     }),
-  ],
-  views: [
-    // Main editing view
-    {
-      name: 'editor',
-      title: 'Editor',
-      type: 'form',
-    },
-    // Draft version view - shows draft content
-    {
-      name: 'draft',
-      title: '📝 Draft Version',
-      type: 'form',
-      options: {
-        perspective: 'drafts',
-        // Only show fields that are relevant for drafts
-      },
-    },
-    // Published version view - shows published content
-    {
-      name: 'published', 
-      title: '✅ Published Version',
-      type: 'form',
-      options: {
-        perspective: 'published',
-        // Only show fields that are relevant for published content
-      },
-    },
-    // Side-by-side comparison view
-    {
-      name: 'comparison',
-      title: '🔄 Draft vs Published',
-      type: 'component',
-      component: ({document}) => {
-        // This would be a custom component for comparison
-        return null
-      },
-    },
   ],
 })

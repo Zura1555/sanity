@@ -2,6 +2,8 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
+import {media} from 'sanity-plugin-media'
+import {codeInput} from '@sanity/code-input'
 import {icons} from '@sanity/icons'
 
 
@@ -14,6 +16,14 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
+    media({
+      creditLine: {
+        enabled: true,
+        excludeSources: ['unsplash'],
+      },
+      maximumUploadSize: 10000000,
+    }),
+    codeInput(),
     structureTool({
       structure: (S) =>
         S.list()
