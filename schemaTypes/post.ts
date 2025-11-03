@@ -25,11 +25,19 @@ export const post = defineType({
       name: 'content',
       title: 'Content',
       type: 'blockContent',
+      description: 'Rich text content for the post',
+    }),
+    defineField({
+      name: 'markdownContent',
+      title: 'Markdown Content',
+      type: 'markdown',
+      description: 'Alternative markdown content with live preview and image upload support',
     }),
     defineField({
       name: 'excerpt',
       title: 'Excerpt',
       type: 'text',
+      description: 'Brief description of the post',
     }),
     defineField({
       name: 'coverImage',
@@ -47,6 +55,18 @@ export const post = defineType({
         }),
       ],
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'cloudinaryImage',
+      title: 'Cloudinary Image',
+      type: 'cloudinary.asset',
+      description: 'Image served from Cloudinary with advanced transformations',
+    }),
+    defineField({
+      name: 'featuredVideo',
+      title: 'Featured Video',
+      type: 'imagekit.video',
+      description: 'Video hosted on ImageKit with optimized delivery',
     }),
     defineField({
       name: 'codeExample',

@@ -70,12 +70,17 @@ export const settings = defineType({
       ],
     }),
     defineField({
+      name: 'markdownDescription',
+      title: 'Markdown Description',
+      type: 'markdown',
+      description: 'Site description in markdown format with image support',
+    }),
+    defineField({
       name: 'ogImage',
       title: 'Open Graph Image',
       type: 'image',
       options: {
         hotspot: true,
-        aiAssist: {imageDescriptionField: 'alt'},
       },
       fields: [
         defineField({
@@ -97,6 +102,18 @@ export const settings = defineType({
             }),
         }),
       ],
+    }),
+    defineField({
+      name: 'cloudinaryLogo',
+      title: 'Cloudinary Logo',
+      type: 'cloudinary.asset',
+      description: 'Logo served from Cloudinary with optimized transformations',
+    }),
+    defineField({
+      name: 'introVideo',
+      title: 'Intro Video',
+      type: 'imagekit.video',
+      description: 'Site introduction video hosted on ImageKit',
     }),
   ],
 })

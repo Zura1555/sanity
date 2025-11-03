@@ -4,6 +4,12 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {media} from 'sanity-plugin-media'
 import {codeInput} from '@sanity/code-input'
+import {markdownSchema} from 'sanity-plugin-markdown'
+import {
+  cloudinaryAssetSourcePlugin,
+  cloudinarySchemaPlugin
+} from 'sanity-plugin-cloudinary'
+import {imageKitPlugin} from 'sanity-plugin-imagekit-plugin'
 import {icons} from '@sanity/icons'
 
 
@@ -24,6 +30,10 @@ export default defineConfig({
       maximumUploadSize: 10000000,
     }),
     codeInput(),
+    markdownSchema(),
+    cloudinaryAssetSourcePlugin(),
+    cloudinarySchemaPlugin(),
+    imageKitPlugin(),
     structureTool({
       structure: (S) =>
         S.list()
