@@ -1,4 +1,6 @@
 import {defineType, defineField} from 'sanity'
+import {SeoPreview} from '../components/inputs/SeoPreview'
+import {ReadingTime} from '../components/inputs/ReadingTime'
 
 export const post = defineType({
   name: 'post',
@@ -19,6 +21,11 @@ export const post = defineType({
       name: 'metadata',
       title: 'Metadata',
       options: {collapsible: true, collapsed: false},
+    },
+    {
+      name: 'seo',
+      title: 'SEO & Social',
+      options: {collapsible: true, collapsed: true},
     },
   ],
   fields: [
@@ -56,7 +63,8 @@ export const post = defineType({
       name: 'excerpt',
       title: 'Excerpt',
       type: 'text',
-      description: 'Brief description of the post for previews and SEO (recommended: 150-160 characters)',
+      description:
+        'Brief description of the post for previews and SEO (recommended: 150-160 characters)',
       validation: (Rule) => Rule.max(300),
       fieldset: 'content',
     }),
@@ -144,7 +152,8 @@ export const post = defineType({
           to: [{type: 'category'}],
         },
       ],
-      validation: (Rule) => Rule.required().min(1).max(5).error('Select between 1 and 5 categories'),
+      validation: (Rule) =>
+        Rule.required().min(1).max(5).error('Select between 1 and 5 categories'),
       fieldset: 'metadata',
     }),
     defineField({
@@ -158,6 +167,42 @@ export const post = defineType({
       },
       fieldset: 'metadata',
     }),
+    // Reading Time Component
+    {
+      name: 'readingTime',
+      title: 'Reading Time',
+      type: 'string',
+      components: {
+        input: ReadingTime as any,
+      },
+      hidden: true, // Hidden field, just shows the component
+    },
+    // SEO & Social Fields
+    defineField({
+      name: 'seo',
+      title: 'SEO Settings',
+      type: 'seo',
+      fieldset: 'seo',
+      description: 'Configure SEO meta tags and social media sharing',
+    }),
+    defineField({
+      name: 'structuredData',
+      title: 'Structured Data',
+      type: 'structuredData',
+      fieldset: 'seo',
+      description: 'Add schema.org markup for rich search results',
+    }),
+    // SEO Preview Component
+    {
+      name: 'seoPreview',
+      title: 'SEO Preview',
+      type: 'string',
+      components: {
+        input: SeoPreview as any,
+      },
+      fieldset: 'seo',
+      hidden: true, // Hidden field, just shows the preview
+    },
   ],
   preview: {
     select: {

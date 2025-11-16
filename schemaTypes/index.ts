@@ -11,6 +11,8 @@ import {codeExample} from './code'
 import {link} from './link'
 import {infoSection} from './infoSection'
 import {callToAction} from './callToAction'
+import {seo} from './objects/seo'
+import {structuredData} from './objects/structuredData'
 
 export const schemaTypes = [
   // Document types
@@ -25,4 +27,6 @@ export const schemaTypes = [
   link,
   infoSection,
   callToAction,
+  seo,
+  structuredData,
 ]
