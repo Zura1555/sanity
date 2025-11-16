@@ -40,13 +40,12 @@ export const settings = defineType({
                     name: 'href',
                     title: 'URL',
                     type: 'url',
+                    description: 'Enter a valid URL starting with http:// or https://',
                     hidden: ({parent}) => parent?.linkType !== 'href',
                     validation: (Rule) =>
-                      Rule.custom(() => true).uri({
-                        scheme: ['/^http$/', '/^https$/'],
+                      Rule.uri({
+                        scheme: ['http', 'https'],
                         allowRelative: false,
-                        relativeOnly: false,
-                        allowCredentials: false,
                       }),
                   }),
                   defineField({
@@ -93,12 +92,11 @@ export const settings = defineType({
           name: 'metadataBase',
           title: 'Metadata Base',
           type: 'url',
+          description: 'Base URL for metadata (e.g., https://example.com)',
           validation: (Rule) =>
             Rule.uri({
-              scheme: ['/^http$/', '/^https$/'],
+              scheme: ['http', 'https'],
               allowRelative: false,
-              relativeOnly: false,
-              allowCredentials: false,
             }),
         }),
       ],
@@ -116,4 +114,17 @@ export const settings = defineType({
       description: 'Site introduction video hosted on ImageKit',
     }),
   ],
+  preview: {
+    select: {
+      title: 'title',
+      media: 'ogImage',
+    },
+    prepare({title, media}) {
+      return {
+        title,
+        subtitle: 'Site Settings',
+        media,
+      }
+    },
+  },
 })

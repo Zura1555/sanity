@@ -36,13 +36,12 @@ export const blockContent = defineType({
                 name: 'href',
                 title: 'URL',
                 type: 'url',
+                description: 'Enter a valid URL starting with http:// or https://',
                 hidden: ({parent}) => parent?.linkType !== 'href',
                 validation: (Rule) =>
-                  Rule.custom(() => true).uri({
-                    scheme: ['/^http$/', '/^https$/'],
+                  Rule.uri({
+                    scheme: ['http', 'https'],
                     allowRelative: false,
-                    relativeOnly: false,
-                    allowCredentials: false,
                   }),
               }),
               defineField({

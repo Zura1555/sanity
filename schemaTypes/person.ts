@@ -9,21 +9,23 @@ export const person = defineType({
       name: 'firstName',
       title: 'First Name',
       type: 'string',
+      description: "Author's first name",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'lastName',
       title: 'Last Name',
       type: 'string',
+      description: "Author's last name",
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'picture',
       title: 'Picture',
       type: 'image',
+      description: 'Profile picture for the author',
       options: {
         hotspot: true,
-        aiAssist: {imageDescriptionField: 'alt'},
       },
       fields: [
         defineField({
@@ -36,4 +38,18 @@ export const person = defineType({
       validation: (Rule) => Rule.required(),
     }),
   ],
+  preview: {
+    select: {
+      firstName: 'firstName',
+      lastName: 'lastName',
+      media: 'picture',
+    },
+    prepare({firstName, lastName, media}) {
+      return {
+        title: `${firstName} ${lastName}`,
+        subtitle: 'Author',
+        media,
+      }
+    },
+  },
 })

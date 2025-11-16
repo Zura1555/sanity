@@ -27,7 +27,6 @@ export const asset = defineType({
       type: 'image',
       options: {
         hotspot: true,
-        aiAssist: {imageDescriptionField: 'alt'},
       },
       fields: [
         defineField({
