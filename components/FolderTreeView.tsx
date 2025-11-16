@@ -1,7 +1,7 @@
-import {Box, Text, Flex, Button, Card, Inset, Grid} from '@sanity/ui'
+import {Box, Text, Flex, Button, Card, Grid} from '@sanity/ui'
 import {client} from './client'
 import {useState, useEffect} from 'react'
-import {FolderOpenIcon, FolderIcon, ImageIcon} from '@sanity/icons'
+import {FolderIcon, ImageIcon} from '@sanity/icons'
 
 interface Asset {
   _id: string
@@ -30,6 +30,7 @@ interface ClientConfig {
 const FolderTreeView = () => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
 
   useEffect(() => {
@@ -38,6 +39,8 @@ const FolderTreeView = () => {
 
   const fetchAssets = async () => {
     try {
+      setError(null)
+      setLoading(true)
       const query = `
         *[_type == "asset"] {
           _id,
@@ -53,6 +56,8 @@ const FolderTreeView = () => {
       setAssets(result)
     } catch (error) {
       console.error('Error fetching assets:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load assets'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -63,18 +68,21 @@ const FolderTreeView = () => {
     const rootFolders: Asset[] = []
 
     // Create map of all assets
-    assets.forEach(asset => {
+    assets.forEach((asset) => {
       assetMap.set(asset._id, {...asset, children: []})
     })
 
     // Build tree structure
-    assets.forEach(asset => {
-      const assetWithChildren = assetMap.get(asset._id)!
-      
+    assets.forEach((asset) => {
+      const assetWithChildren = assetMap.get(asset._id)
+      if (!assetWithChildren) return
+
       if (asset.parentFolder && assetMap.has(asset.parentFolder._ref)) {
-        const parent = assetMap.get(asset.parentFolder._ref)!
-        parent.children = parent.children || []
-        parent.children.push(assetWithChildren)
+        const parent = assetMap.get(asset.parentFolder._ref)
+        if (parent) {
+          parent.children = parent.children || []
+          parent.children.push(assetWithChildren)
+        }
       } else if (asset.type === 'folder') {
         // This is a root folder
         rootFolders.push(assetWithChildren)
@@ -82,9 +90,12 @@ const FolderTreeView = () => {
     })
 
     // Add orphaned images to root level
-    assets.forEach(asset => {
+    assets.forEach((asset) => {
       if (asset.type === 'image' && !asset.parentFolder) {
-        rootFolders.push(assetMap.get(asset._id)!)
+        const orphanedAsset = assetMap.get(asset._id)
+        if (orphanedAsset) {
+          rootFolders.push(orphanedAsset)
+        }
       }
     })
 
@@ -109,7 +120,13 @@ const FolderTreeView = () => {
 
     if (isFolder) {
       return (
-        <Box key={asset._id} marginBottom={1}>
+        <Box
+          key={asset._id}
+          marginBottom={1}
+          role="treeitem"
+          aria-label={`Folder: ${asset.title}`}
+          aria-expanded={hasChildren}
+        >
           <Card
             padding={2}
             radius={2}
@@ -119,22 +136,19 @@ const FolderTreeView = () => {
               borderLeft: `3px solid ${folderColor}`,
             }}
             tone="default"
+            tabIndex={0}
           >
             <Flex align="center" gap={2}>
-              {hasChildren ? (
-                <FolderOpenIcon style={{color: folderColor}} />
-              ) : (
-                <FolderIcon style={{color: folderColor}} />
-              )}
+              <FolderIcon style={{color: folderColor}} aria-hidden="true" />
               <Text weight="semibold" size={2}>
                 {asset.title}
               </Text>
-              <Text size={1} tone="subtle">
+              <Text size={1} muted aria-label={`Contains ${asset.children?.length || 0} items`}>
                 ({asset.children?.length || 0} items)
               </Text>
             </Flex>
           </Card>
-          {asset.children?.map(child => renderAsset(child, level + 1))}
+          {asset.children?.map((child) => renderAsset(child, level + 1))}
         </Box>
       )
     }
@@ -147,13 +161,16 @@ const FolderTreeView = () => {
         shadow={0}
         style={{marginLeft: `${level * 20}px`}}
         tone="default"
+        role="treeitem"
+        aria-label={`Image: ${asset.title}`}
+        tabIndex={0}
       >
         <Flex align="center" gap={2}>
-          <ImageIcon style={{color: '#6b7280'}} />
+          <ImageIcon style={{color: '#6b7280'}} aria-hidden="true" />
           <Text size={2}>{asset.title}</Text>
           {asset.image && (
-            <Box marginLeft="auto">
-              <Text size={1} tone="subtle">
+            <Box flex={1} style={{textAlign: 'right'}}>
+              <Text size={1} muted aria-label="Has image attachment">
                 📷
               </Text>
             </Box>
@@ -165,8 +182,30 @@ const FolderTreeView = () => {
 
   if (loading) {
     return (
-      <Box padding={4}>
+      <Box padding={4} role="status" aria-live="polite" aria-label="Loading assets">
         <Text>Loading assets...</Text>
+      </Box>
+    )
+  }
+
+  if (error) {
+    return (
+      <Box padding={4} role="alert" aria-live="assertive">
+        <Card padding={4} radius={2} tone="critical">
+          <Flex direction="column" gap={3} align="center">
+            <Text weight="semibold">Error Loading Assets</Text>
+            <Text size={2} muted id="error-message">
+              {error}
+            </Text>
+            <Button
+              text="Retry"
+              mode="default"
+              onClick={fetchAssets}
+              aria-label="Retry loading assets"
+              aria-describedby="error-message"
+            />
+          </Flex>
+        </Card>
       </Box>
     )
   }
@@ -174,37 +213,37 @@ const FolderTreeView = () => {
   const folderTree = buildFolderTree(assets)
 
   return (
-    <Box padding={4} style={{minHeight: '100vh', backgroundColor: '#fafafa'}}>
+    <Box
+      padding={4}
+      style={{minHeight: '100vh', backgroundColor: '#fafafa'}}
+      role="main"
+      aria-label="Asset Library"
+    >
       <Flex direction="column" gap={3}>
-        <Text size={3} weight="bold">
+        <Text size={3} weight="bold" as="h1">
           📁 Asset Library
         </Text>
-        
-        <Flex gap={2} marginBottom={3}>
+
+        <Flex gap={2} marginBottom={3} role="toolbar" aria-label="Asset library actions">
           <Button
             text="Refresh"
             mode="ghost"
             onClick={fetchAssets}
+            aria-label="Refresh asset list"
           />
-          <Button
-            text="New Folder"
-            mode="ghost"
-          />
-          <Button
-            text="Upload Image"
-            mode="ghost"
-          />
+          <Button text="New Folder" mode="ghost" aria-label="Create new folder" />
+          <Button text="Upload Image" mode="ghost" aria-label="Upload new image" />
         </Flex>
 
         {folderTree.length === 0 ? (
-          <Card padding={4} radius={2} tone="default">
-            <Text align="center" tone="subtle">
+          <Card padding={4} radius={2} tone="default" role="status">
+            <Text align="center" muted>
               No assets found. Create your first folder or upload an image.
             </Text>
           </Card>
         ) : (
-          <Box>
-            {folderTree.map(asset => renderAsset(asset))}
+          <Box role="tree" aria-label="Asset folder tree">
+            {folderTree.map((asset) => renderAsset(asset))}
           </Box>
         )}
       </Flex>
