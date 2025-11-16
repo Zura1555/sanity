@@ -3,13 +3,11 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
 import {templates} from './templates'
+import {documentActions} from './actions'
 import {media} from 'sanity-plugin-media'
 import {codeInput} from '@sanity/code-input'
 import {markdownSchema} from 'sanity-plugin-markdown'
-import {
-  cloudinaryAssetSourcePlugin,
-  cloudinarySchemaPlugin
-} from 'sanity-plugin-cloudinary'
+import {cloudinaryAssetSourcePlugin, cloudinarySchemaPlugin} from 'sanity-plugin-cloudinary'
 import {imageKitPlugin} from 'sanity-plugin-imagekit-plugin'
 import {
   DocumentsIcon,
@@ -21,8 +19,6 @@ import {
   UserIcon,
   CogIcon,
 } from '@sanity/icons'
-
-
 
 export default defineConfig({
   name: 'default',
@@ -65,7 +61,7 @@ export default defineConfig({
                       .title('Categories')
                       .icon(TagsIcon)
                       .child(S.documentTypeList('category').title('All Categories')),
-                  ])
+                  ]),
               ),
             S.divider(),
             // Media Section
@@ -83,9 +79,9 @@ export default defineConfig({
                         S.documentTypeList('asset')
                           .title('All Assets')
                           .filter('_type == "asset"')
-                          .defaultOrdering([{field: 'title', direction: 'asc'}])
+                          .defaultOrdering([{field: 'title', direction: 'asc'}]),
                       ),
-                  ])
+                  ]),
               ),
             S.divider(),
             // People Section
@@ -100,7 +96,7 @@ export default defineConfig({
                       .title('Authors')
                       .icon(UserIcon)
                       .child(S.documentTypeList('person').title('All Authors')),
-                  ])
+                  ]),
               ),
             S.divider(),
             // Configuration Section
@@ -115,7 +111,7 @@ export default defineConfig({
                       .title('Site Settings')
                       .icon(CogIcon)
                       .child(S.documentTypeList('settings').title('Settings')),
-                  ])
+                  ]),
               ),
           ]),
     }),
@@ -125,5 +121,9 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     templates,
+  },
+
+  document: {
+    actions: documentActions,
   },
 })
