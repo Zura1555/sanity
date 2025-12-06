@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m:*)",
+      "Bash(npx sanity deploy:*)",
+      "Bash(npm audit)",
+      "Bash(npm audit fix:*)",
+      "Bash(npm view:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm install:*)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

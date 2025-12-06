@@ -110,12 +110,6 @@ export const settings = defineType({
       description: 'Logo served from Cloudinary with optimized transformations',
     }),
     defineField({
-      name: 'introVideo',
-      title: 'Intro Video',
-      type: 'imagekit.video',
-      description: 'Site introduction video hosted on ImageKit',
-    }),
-    defineField({
       name: 'openGraphSiteName',
       title: 'Open Graph Site Name',
       type: 'string',

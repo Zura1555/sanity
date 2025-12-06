@@ -63,12 +63,6 @@ export const post = defineType({
       description: 'Image served from Cloudinary with advanced transformations',
     }),
     defineField({
-      name: 'featuredVideo',
-      title: 'Featured Video',
-      type: 'imagekit.video',
-      description: 'Video hosted on ImageKit with optimized delivery',
-    }),
-    defineField({
       name: 'codeExample',
       title: 'Code Example',
       type: 'code',
