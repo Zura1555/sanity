@@ -123,5 +123,11 @@ export const post = defineType({
         layout: 'tags',
       },
     }),
+    defineField({
+      name: 'seo',
+      title: 'SEO & Social Media',
+      type: 'seoFields',
+      description: 'SEO settings and social media optimization for this post',
+    }),
   ],
 })

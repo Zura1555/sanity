@@ -10,6 +10,7 @@ import {
   cloudinarySchemaPlugin
 } from 'sanity-plugin-cloudinary'
 import {imageKitPlugin} from 'sanity-plugin-imagekit-plugin'
+import seofields from 'sanity-plugin-seofields'
 import {icons} from '@sanity/icons'
 
 
@@ -34,6 +35,7 @@ export default defineConfig({
     cloudinaryAssetSourcePlugin(),
     cloudinarySchemaPlugin(),
     imageKitPlugin(),
+    seofields(),
     structureTool({
       structure: (S) =>
         S.list()

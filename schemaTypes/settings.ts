@@ -115,5 +115,23 @@ export const settings = defineType({
       type: 'imagekit.video',
       description: 'Site introduction video hosted on ImageKit',
     }),
+    defineField({
+      name: 'openGraphSiteName',
+      title: 'Open Graph Site Name',
+      type: 'string',
+      description: 'The name of your site for Open Graph meta tags',
+    }),
+    defineField({
+      name: 'twitterSite',
+      title: 'Twitter Site Handle',
+      type: 'string',
+      description: 'Your site\'s Twitter handle (e.g., @yoursite)',
+    }),
+    defineField({
+      name: 'defaultSeoDescription',
+      title: 'Default SEO Description',
+      type: 'text',
+      description: 'Default description for posts that don\'t have custom SEO descriptions',
+    }),
   ],
 })
