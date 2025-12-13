@@ -9,7 +9,10 @@
       "Bash(npm view:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm install:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(npm audit --json)"
     ],
     "deny": [],
     "ask": []
