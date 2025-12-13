@@ -24,7 +24,7 @@ export const link = defineType({
       hidden: ({parent}) => parent?.linkType !== 'href',
       validation: (Rule) =>
         Rule.custom(() => true).uri({
-          scheme: ['/^http$/', '/^https$/'],
+          scheme: ['http', 'https'],
           allowRelative: false,
           relativeOnly: false,
           allowCredentials: false,

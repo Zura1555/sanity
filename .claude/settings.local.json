@@ -12,7 +12,9 @@
       "WebSearch",
       "Bash(git checkout:*)",
       "Bash(git push:*)",
-      "Bash(npm audit --json)"
+      "Bash(npm audit --json)",
+      "Bash(cat:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -23,6 +23,7 @@ import {
 export default defineConfig({
   name: 'default',
   title: 'Zura',
+  logo: undefined,
 
   projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'w486ji4p',
   dataset: process.env.SANITY_STUDIO_DATASET || 'production',
