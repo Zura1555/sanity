@@ -14,6 +14,7 @@ export const publishWithSocialAction: DocumentActionComponent = (props) => {
     icon: ShareIcon,
     tone: 'positive',
     onHandle: async () => {
+      // eslint-disable-next-line no-restricted-globals
       const confirmed = confirm(
         'This will publish the post and prepare it for social media sharing. Continue?',
       )

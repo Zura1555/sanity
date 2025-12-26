@@ -48,7 +48,7 @@ export default defineConfig({
           .items([
             // Content Section
             S.listItem()
-              .title('📝 Content')
+              .title('Content')
               .icon(DocumentsIcon)
               .child(
                 S.list()
@@ -67,7 +67,7 @@ export default defineConfig({
             S.divider(),
             // Media Section
             S.listItem()
-              .title('🎨 Media')
+              .title('Media')
               .icon(ImagesIcon)
               .child(
                 S.list()
@@ -87,7 +87,7 @@ export default defineConfig({
             S.divider(),
             // People Section
             S.listItem()
-              .title('👥 People')
+              .title('People')
               .icon(UsersIcon)
               .child(
                 S.list()
@@ -102,7 +102,7 @@ export default defineConfig({
             S.divider(),
             // Configuration Section
             S.listItem()
-              .title('⚙️ Configuration')
+              .title('Configuration')
               .icon(CogIcon)
               .child(
                 S.list()

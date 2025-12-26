@@ -9,7 +9,7 @@ describe('Category Schema', () => {
   })
 
   it('should have all required fields', () => {
-    const fieldNames = category.fields.map((field: any) => field.name)
+    const fieldNames = category.fields.map((field) => field.name)
 
     expect(fieldNames).toContain('title')
     expect(fieldNames).toContain('slug')
@@ -20,34 +20,39 @@ describe('Category Schema', () => {
   })
 
   it('should have color field with predefined options', () => {
-    const colorField = category.fields.find((f: any) => f.name === 'color')
+    const colorField = category.fields.find((f) => f.name === 'color')
     expect(colorField).toBeDefined()
+    // @ts-expect-error - options type is generic
     expect(colorField?.options?.list).toBeDefined()
+    // @ts-expect-error - options type is generic
     expect(colorField?.options?.list.length).toBeGreaterThan(0)
 
-    const colors = colorField?.options?.list.map((c: any) => c.value)
+    // @ts-expect-error - options type is generic
+    const colors = colorField?.options?.list.map((c: {value: string}) => c.value)
     expect(colors).toContain('blue')
     expect(colors).toContain('green')
     expect(colors).toContain('red')
   })
 
   it('should have featured field with default value', () => {
-    const featuredField = category.fields.find((f: any) => f.name === 'featured')
+    const featuredField = category.fields.find((f) => f.name === 'featured')
     expect(featuredField).toBeDefined()
     expect(featuredField?.type).toBe('boolean')
     expect(featuredField?.initialValue).toBe(false)
   })
 
   it('should have SEO settings as collapsible object', () => {
-    const seoField = category.fields.find((f: any) => f.name === 'seo')
+    const seoField = category.fields.find((f) => f.name === 'seo')
     expect(seoField).toBeDefined()
     expect(seoField?.type).toBe('object')
+    // @ts-expect-error - options type is generic
     expect(seoField?.options?.collapsible).toBe(true)
+    // @ts-expect-error - options type is generic
     expect(seoField?.options?.collapsed).toBe(true)
   })
 
   it('should prevent circular parent references', () => {
-    const parentField = category.fields.find((f: any) => f.name === 'parentCategory')
+    const parentField = category.fields.find((f) => f.name === 'parentCategory')
     expect(parentField).toBeDefined()
     expect(parentField?.validation).toBeDefined()
   })
@@ -57,7 +62,7 @@ describe('Category Schema', () => {
     expect(category.preview?.prepare).toBeDefined()
 
     // Test preview prepare function
-    const result = category.preview?.prepare({
+    const result = category.preview?.prepare?.({
       title: 'Test Category',
       featured: true,
       subtitle: 'Test description',
@@ -68,12 +73,12 @@ describe('Category Schema', () => {
   })
 
   it('should have validation on title length', () => {
-    const titleField = category.fields.find((f: any) => f.name === 'title')
+    const titleField = category.fields.find((f) => f.name === 'title')
     expect(titleField?.validation).toBeDefined()
   })
 
   it('should have description with max length', () => {
-    const descField = category.fields.find((f: any) => f.name === 'description')
+    const descField = category.fields.find((f) => f.name === 'description')
     expect(descField?.validation).toBeDefined()
   })
 })
