@@ -4,6 +4,7 @@ import {person} from './person'
 import {category} from './category'
 import {settings} from './settings'
 import {asset} from './asset'
+import {quote} from './quote'
 
 // Object/Array types
 import {blockContent} from './blockContent'
@@ -19,6 +20,7 @@ export const schemaTypes = [
   category,
   settings,
   asset,
+  quote,
   // Object/Array types
   blockContent,
   codeExample,

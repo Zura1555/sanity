@@ -14,7 +14,8 @@
       "Bash(git push:*)",
       "Bash(npm audit --json)",
       "Bash(cat:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:www.sanity.io)"
     ],
     "deny": [],
     "ask": []
