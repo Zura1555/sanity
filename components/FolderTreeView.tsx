@@ -1,4 +1,4 @@
-import {Box, Text, Flex, Button, Card, Grid} from '@sanity/ui'
+import {Box, Text, Flex, Button, Card} from '@sanity/ui'
 import {client} from './client'
 import {useState, useEffect} from 'react'
 import {FolderIcon, ImageIcon} from '@sanity/icons'
@@ -20,18 +20,10 @@ interface Asset {
   children?: Asset[]
 }
 
-interface ClientConfig {
-  projectId: string
-  dataset: string
-  apiVersion: string
-  useCdn: boolean
-}
-
 const FolderTreeView = () => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [currentFolder, setCurrentFolder] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAssets()

@@ -9,7 +9,7 @@ describe('Person Schema', () => {
   })
 
   it('should have required name fields', () => {
-    const fieldNames = person.fields.map((field: any) => field.name)
+    const fieldNames = person.fields.map((field) => field.name)
 
     expect(fieldNames).toContain('firstName')
     expect(fieldNames).toContain('lastName')
@@ -17,22 +17,24 @@ describe('Person Schema', () => {
   })
 
   it('should require firstName and lastName', () => {
-    const firstNameField = person.fields.find((f: any) => f.name === 'firstName')
+    const firstNameField = person.fields.find((f) => f.name === 'firstName')
     expect(firstNameField?.validation).toBeDefined()
 
-    const lastNameField = person.fields.find((f: any) => f.name === 'lastName')
+    const lastNameField = person.fields.find((f) => f.name === 'lastName')
     expect(lastNameField?.validation).toBeDefined()
   })
 
   it('should have picture with hotspot', () => {
-    const pictureField = person.fields.find((f: any) => f.name === 'picture')
+    const pictureField = person.fields.find((f) => f.name === 'picture')
     expect(pictureField?.type).toBe('image')
+    // @ts-expect-error - options are generic
     expect(pictureField?.options?.hotspot).toBe(true)
   })
 
   it('should require alt text for picture', () => {
-    const pictureField = person.fields.find((f: any) => f.name === 'picture')
-    const altField = pictureField?.fields?.find((f: any) => f.name === 'alt')
+    const pictureField = person.fields.find((f) => f.name === 'picture')
+    // @ts-expect-error - fields property exists on image type
+    const altField = pictureField?.fields?.find((f) => f.name === 'alt')
 
     expect(altField).toBeDefined()
     expect(altField?.validation).toBeDefined()
@@ -42,7 +44,7 @@ describe('Person Schema', () => {
     expect(person.preview).toBeDefined()
     expect(person.preview?.prepare).toBeDefined()
 
-    const result = person.preview?.prepare({
+    const result = person.preview?.prepare?.({
       firstName: 'John',
       lastName: 'Doe',
       media: null,
@@ -53,7 +55,7 @@ describe('Person Schema', () => {
   })
 
   it('should have helpful descriptions', () => {
-    const firstNameField = person.fields.find((f: any) => f.name === 'firstName')
+    const firstNameField = person.fields.find((f) => f.name === 'firstName')
     expect(firstNameField?.description).toBeDefined()
     expect(firstNameField?.description).toBeTruthy()
   })

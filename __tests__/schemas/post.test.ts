@@ -9,10 +9,11 @@ describe('Post Schema', () => {
   })
 
   it('should have all required fields', () => {
-    const fieldNames = post.fields.map((field: any) => field.name)
+    const fieldNames = post.fields.map((field) => field.name)
 
     expect(fieldNames).toContain('title')
     expect(fieldNames).toContain('slug')
+    expect(fieldNames).toContain('contentType')
     expect(fieldNames).toContain('content')
     expect(fieldNames).toContain('excerpt')
     expect(fieldNames).toContain('coverImage')
@@ -25,7 +26,7 @@ describe('Post Schema', () => {
     expect(post.fieldsets).toBeDefined()
     expect(post.fieldsets?.length).toBe(3)
 
-    const fieldsetNames = post.fieldsets?.map((fs: any) => fs.name)
+    const fieldsetNames = post.fieldsets?.map((fs) => fs.name)
     expect(fieldsetNames).toContain('content')
     expect(fieldsetNames).toContain('media')
     expect(fieldsetNames).toContain('metadata')
@@ -40,24 +41,24 @@ describe('Post Schema', () => {
   })
 
   it('should validate required fields', () => {
-    const titleField = post.fields.find((f: any) => f.name === 'title')
+    const titleField = post.fields.find((f) => f.name === 'title')
     expect(titleField?.validation).toBeDefined()
 
-    const slugField = post.fields.find((f: any) => f.name === 'slug')
+    const slugField = post.fields.find((f) => f.name === 'slug')
     expect(slugField?.validation).toBeDefined()
 
-    const coverImageField = post.fields.find((f: any) => f.name === 'coverImage')
+    const coverImageField = post.fields.find((f) => f.name === 'coverImage')
     expect(coverImageField?.validation).toBeDefined()
   })
 
   it('should have excerpt with max length validation', () => {
-    const excerptField = post.fields.find((f: any) => f.name === 'excerpt')
+    const excerptField = post.fields.find((f) => f.name === 'excerpt')
     expect(excerptField).toBeDefined()
     expect(excerptField?.validation).toBeDefined()
   })
 
   it('should have categories with min/max validation', () => {
-    const categoriesField = post.fields.find((f: any) => f.name === 'categories')
+    const categoriesField = post.fields.find((f) => f.name === 'categories')
     expect(categoriesField).toBeDefined()
     expect(categoriesField?.type).toBe('array')
     expect(categoriesField?.validation).toBeDefined()

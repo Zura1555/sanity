@@ -39,11 +39,26 @@ export const post = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'contentType',
+      title: 'Content Type',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Portable Text', value: 'portableText'},
+          {title: 'Markdown', value: 'markdown'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'portableText',
+      fieldset: 'content',
+    }),
+    defineField({
       name: 'content',
       title: 'Content',
       type: 'blockContent',
       description: 'Rich text content for the post',
       fieldset: 'content',
+      hidden: ({document}) => document?.contentType === 'markdown',
     }),
     defineField({
       name: 'markdownContent',
@@ -51,12 +66,14 @@ export const post = defineType({
       type: 'markdown',
       description: 'Alternative markdown content with live preview and image upload support',
       fieldset: 'content',
+      hidden: ({document}) => document?.contentType !== 'markdown',
     }),
     defineField({
       name: 'excerpt',
       title: 'Excerpt',
       type: 'text',
-      description: 'Brief description of the post for previews and SEO (recommended: 150-160 characters)',
+      description:
+        'Brief description of the post for previews and SEO (recommended: 150-160 characters)',
       validation: (Rule) => Rule.max(300),
       fieldset: 'content',
     }),
@@ -137,7 +154,8 @@ export const post = defineType({
           to: [{type: 'category'}],
         },
       ],
-      validation: (Rule) => Rule.required().min(1).max(5).error('Select between 1 and 5 categories'),
+      validation: (Rule) =>
+        Rule.required().min(1).max(5).error('Select between 1 and 5 categories'),
       fieldset: 'metadata',
     }),
     defineField({
