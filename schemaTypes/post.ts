@@ -1,4 +1,5 @@
 import {defineType, defineField} from 'sanity'
+import {ContentTypeConverterInput} from '../components/ContentTypeConverterInput'
 
 export const post = defineType({
   name: 'post',
@@ -48,6 +49,9 @@ export const post = defineType({
           {title: 'Markdown', value: 'markdown'},
         ],
         layout: 'radio',
+      },
+      components: {
+        input: ContentTypeConverterInput,
       },
       initialValue: 'portableText',
       fieldset: 'content',
