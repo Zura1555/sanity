@@ -96,5 +96,9 @@ export const blockContent = defineType({
       type: 'code',
       title: 'Code Block',
     },
+    {
+      type: 'table',
+      title: 'Table',
+    },
   ],
 })
