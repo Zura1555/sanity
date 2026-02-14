@@ -1,9 +1,15 @@
 import {defineType, defineField} from 'sanity'
+import {ThListIcon} from '@sanity/icons'
+import {TableCanvasInput} from '../components/TableCanvasInput'
 
 export const table = defineType({
   name: 'table',
   title: 'Table',
   type: 'object',
+  icon: ThListIcon,
+  components: {
+    input: TableCanvasInput,
+  },
   fields: [
     defineField({
       name: 'rows',
