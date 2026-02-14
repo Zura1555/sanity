@@ -11,9 +11,11 @@ export function ContentTypeConverterInput(props: InputProps) {
   const markdownContent = useFormValue(['markdownContent']) as string | undefined
 
   // Get document operations for patching
-  const documentId = useFormValue(['_id']) as string | undefined
+  // Strip 'drafts.' prefix if present since useDocumentOperation doesn't accept draft IDs
+  const rawDocumentId = useFormValue(['_id']) as string | undefined
+  const documentId = rawDocumentId?.replace(/^drafts\./, '') || ''
   const documentType = useFormValue(['_type']) as string | undefined
-  const {patch}: any = useDocumentOperation(documentId || '', documentType || '')
+  const {patch}: any = useDocumentOperation(documentId, documentType || '')
 
   // Track previous value
   const prevValueRef = useRef(value)
