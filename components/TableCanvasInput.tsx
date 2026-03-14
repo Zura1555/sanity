@@ -18,6 +18,7 @@ interface TableRow {
 }
 
 interface TableValue {
+  _type?: string
   rows?: TableRow[]
 }
 
@@ -50,13 +51,27 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     }
   }, [])
 
+  // Patch existing data that doesn't have _type or rows missing _key (migration for old data)
+  useEffect(() => {
+    if (value && value.rows && value.rows.length > 0) {
+      const needsMigration = !value._type || value.rows.some((row) => !row._key)
+      if (needsMigration) {
+        const migratedRows = value.rows.map((row) => ({
+          ...row,
+          _key: row._key || generateKey(),
+        }))
+        onChange(set({_type: 'table', rows: migratedRows}))
+      }
+    }
+  }, [value?._type, value?.rows])
+
   const handleInitializeTable = () => {
     const initialRows: TableRow[] = [
       {_key: generateKey(), cells: ['Header 1', 'Header 2', 'Header 3']},
       {_key: generateKey(), cells: ['', '', '']},
       {_key: generateKey(), cells: ['', '', '']},
     ]
-    onChange(set({rows: initialRows}))
+    onChange(set({_type: 'table', rows: initialRows}))
   }
 
   // Update a specific cell
@@ -68,7 +83,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         newCells[colIndex] = newValue
         return {...row, cells: newCells}
       })
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, onChange],
   )
@@ -82,7 +97,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
       }
       const insertIndex = afterIndex !== undefined ? afterIndex + 1 : rows.length
       const newRows = [...rows.slice(0, insertIndex), newRow, ...rows.slice(insertIndex)]
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, colCount, onChange],
   )
@@ -92,7 +107,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     (rowIndex: number) => {
       if (rows.length <= 1) return // Keep at least one row
       const newRows = rows.filter((_, idx) => idx !== rowIndex)
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, onChange],
   )
@@ -106,7 +121,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         cells.splice(insertIndex, 0, '')
         return {...row, cells}
       })
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, colCount, onChange],
   )
@@ -119,7 +134,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         ...row,
         cells: (row.cells || []).filter((_, idx) => idx !== colIndex),
       }))
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, colCount, onChange],
   )
@@ -134,7 +149,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
       const newRows = [...rows]
       const [movedRow] = newRows.splice(rowIndex, 1)
       newRows.splice(newIndex, 0, movedRow)
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, onChange],
   )
@@ -152,7 +167,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         cells.splice(newIndex, 0, movedCell)
         return {...row, cells}
       })
-      onChange(set({rows: newRows}))
+      onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, colCount, onChange],
   )
