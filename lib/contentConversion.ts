@@ -78,10 +78,48 @@ const components: any = {
     code: ({children}: {children: string}) => `<code>${children}</code>`,
     underline: ({children}: {children: string}) => `<u>${children}</u>`,
     'strike-through': ({children}: {children: string}) => `<del>${children}</del>`,
-    link: ({children, value}: {children: string; value?: {href?: string}}) => 
+    link: ({children, value}: {children: string; value?: {href?: string}}) =>
       `<a href="${value?.href || ''}">${children}</a>`,
   },
-  types: {},
+  types: {
+    code: ({value}: {value?: {code?: string; language?: string}}) => {
+      const code = value?.code || ''
+      const language = value?.language || ''
+      return `<pre><code${language ? ` class="language-${language}"` : ''}>${escapeHtml(code)}</code></pre>`
+    },
+    table: ({value}: {value?: {rows?: Array<{_key: string; cells: string[]}>}}) => {
+      const rows = value?.rows || []
+      if (rows.length === 0) return ''
+
+      let html = '<table>\n<tbody>\n'
+      rows.forEach((row, rowIndex) => {
+        const tag = rowIndex === 0 ? 'th' : 'td'
+        html += '<tr>\n'
+        row.cells.forEach((cell) => {
+          html += `<${tag}>${escapeHtml(cell || '')}</${tag}>\n`
+        })
+        html += '</tr>\n'
+      })
+      html += '</tbody>\n</table>'
+      return html
+    },
+  },
+}
+
+// Helper function to escape HTML special characters
+function escapeHtml(text: string): string {
+  const div = typeof document !== 'undefined' ? document.createElement('div') : null
+  if (div) {
+    div.textContent = text
+    return div.innerHTML
+  }
+  // Fallback for server-side rendering
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
 }
 
 /**
