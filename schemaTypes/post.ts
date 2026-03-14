@@ -5,6 +5,7 @@ export const post = defineType({
   name: 'post',
   title: 'Post',
   type: 'document',
+  liveEdit: true,
   fieldsets: [
     {
       name: 'content',

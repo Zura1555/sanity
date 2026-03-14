@@ -1,5 +1,5 @@
 import {duplicatePostAction} from './duplicatePost'
-import {publishWithSocialAction} from './publishWithSocial'
+import {PublishWithSocialAction} from './publishWithSocial'
 import {generateSocialPreviewAction} from './generateSocialPreview'
 import {UnpublishPostAction} from './unpublishPost'
 
@@ -10,7 +10,7 @@ export const documentActions = (prev: any[], context: any) => {
   if (schemaType === 'post') {
     return [
       duplicatePostAction,
-      publishWithSocialAction,
+      PublishWithSocialAction,
       generateSocialPreviewAction,
       UnpublishPostAction,
       ...prev,
