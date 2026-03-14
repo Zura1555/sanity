@@ -1,0 +1,9 @@
+{
+  "provider": {
+    "openrouter": {
+      "models": {
+        "anthropic/claude-3.5-sonnet": {}
+      }
+    }
+  }
+}
