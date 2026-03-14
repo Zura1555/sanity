@@ -3,10 +3,11 @@ import {ShareIcon} from '@sanity/icons'
 
 export const PublishWithSocialAction: DocumentActionComponent = (props) => {
   const {id, type, published, onComplete} = props
+  const isLiveEdit = Boolean((props as any).schemaType?.liveEdit)
   const operation = useDocumentOperation(id, type)
 
-  // Only show for unpublished posts
-  if (type !== 'post' || published) {
+  // Show for unpublished posts or live-edit posts (which are effectively always published)
+  if (type !== 'post' || (!isLiveEdit && published)) {
     return null
   }
 
@@ -26,19 +27,25 @@ export const PublishWithSocialAction: DocumentActionComponent = (props) => {
       }
 
       try {
+        let executed = false
+
         if (!operation.patch?.disabled) {
-          operation.patch.execute([{set: {publishedAt: new Date().toISOString()}}])
+          executed = true
+          await Promise.resolve(operation.patch.execute([{set: {publishedAt: new Date().toISOString()}}]))
         }
 
         if (!operation.publish?.disabled) {
-          operation.publish.execute()
+          executed = true
+          await Promise.resolve(operation.publish.execute())
         }
 
-        // In a real implementation, you would integrate with social media APIs here
-        // For now, we'll just show a success message
-        alert(
-          'Post published successfully! Social media integration would trigger here in production.',
-        )
+        if (executed) {
+          // In a real implementation, you would integrate with social media APIs here
+          // For now, we'll just show a success message
+          alert(
+            'Post published successfully! Social media integration would trigger here in production.',
+          )
+        }
         onComplete()
       } catch (error) {
         console.error('Error publishing post:', error)
