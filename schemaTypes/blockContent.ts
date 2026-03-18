@@ -1,9 +1,13 @@
 import {defineType, defineField} from 'sanity'
+import {BlockContentInput} from '../components/BlockContentInput'
 
 export const blockContent = defineType({
   name: 'blockContent',
   title: 'Block Content',
   type: 'array',
+  components: {
+    input: BlockContentInput,
+  },
   of: [
     {
       type: 'block',
