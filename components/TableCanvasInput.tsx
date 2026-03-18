@@ -1,5 +1,5 @@
-import React, {useCallback, useState, useRef, useEffect} from 'react'
-import {Stack, Button, Card, TextInput, Grid, Flex, Box, Tooltip, Text, Inline} from '@sanity/ui'
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import {Stack, Button, Card, Flex, Box, Tooltip, Text, Inline, TextArea} from '@sanity/ui'
 import {set, unset, type ObjectInputProps} from 'sanity'
 import {
   AddIcon,
@@ -9,7 +9,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   TrashIcon,
-  ComposeIcon,
 } from '@sanity/icons'
 
 interface TableRow {
@@ -22,18 +21,23 @@ interface TableValue {
   rows?: TableRow[]
 }
 
+const PICKER_MAX_ROWS = 10
+const PICKER_MAX_COLS = 10
+
+const generateKey = () => Math.random().toString(36).substring(2, 9)
+
 export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
   const {value, onChange, readOnly} = props
   const [editingCell, setEditingCell] = useState<{row: number; col: number} | null>(null)
   const [selectedCell, setSelectedCell] = useState<{row: number; col: number} | null>(null)
   const [hoveredRow, setHoveredRow] = useState<number | null>(null)
   const [hoveredCol, setHoveredCol] = useState<number | null>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [hoveredSize, setHoveredSize] = useState<{rows: number; cols: number} | null>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  const rows = value?.rows || []
+  const rows = useMemo(() => value?.rows || [], [value?.rows])
   const colCount = rows.length > 0 ? Math.max(...rows.map((r) => r.cells?.length || 0)) : 0
 
-  // Focus input when editing starts
   useEffect(() => {
     if (editingCell && inputRef.current) {
       inputRef.current.focus()
@@ -41,40 +45,37 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     }
   }, [editingCell])
 
-  // Generate a unique key
-  const generateKey = () => Math.random().toString(36).substring(2, 9)
-
-  // Initialize with empty table if no data
+  // Backward compatibility: add missing _type and _key values for existing content.
   useEffect(() => {
-    if (!value?.rows || value.rows.length === 0) {
-      handleInitializeTable()
-    }
-  }, [])
+    if (!value?.rows || value.rows.length === 0) return
 
-  // Patch existing data that doesn't have _type or rows missing _key (migration for old data)
-  useEffect(() => {
-    if (value && value.rows && value.rows.length > 0) {
-      const needsMigration = !value._type || value.rows.some((row) => !row._key)
-      if (needsMigration) {
-        const migratedRows = value.rows.map((row) => ({
-          ...row,
-          _key: row._key || generateKey(),
-        }))
-        onChange(set({_type: 'table', rows: migratedRows}))
-      }
-    }
-  }, [value?._type, value?.rows])
+    const needsMigration = !value._type || value.rows.some((row) => !row._key)
+    if (!needsMigration) return
 
-  const handleInitializeTable = () => {
-    const initialRows: TableRow[] = [
-      {_key: generateKey(), cells: ['Header 1', 'Header 2', 'Header 3']},
-      {_key: generateKey(), cells: ['', '', '']},
-      {_key: generateKey(), cells: ['', '', '']},
-    ]
-    onChange(set({_type: 'table', rows: initialRows}))
-  }
+    const migratedRows = value.rows.map((row) => ({
+      ...row,
+      _key: row._key || generateKey(),
+    }))
 
-  // Update a specific cell
+    onChange(set({_type: 'table', rows: migratedRows}))
+  }, [value?._type, value?.rows, onChange])
+
+  const handleInitializeTable = useCallback(
+    (rowCount: number, columnCount: number) => {
+      const initialRows: TableRow[] = Array.from({length: rowCount}, (_, rowIndex) => ({
+        _key: generateKey(),
+        cells: Array.from({length: columnCount}, (_, colIndex) =>
+          rowIndex === 0 ? `Header ${colIndex + 1}` : '',
+        ),
+      }))
+
+      onChange(set({_type: 'table', rows: initialRows}))
+      setSelectedCell({row: 0, col: 0})
+      setEditingCell({row: 0, col: 0})
+    },
+    [onChange],
+  )
+
   const handleCellChange = useCallback(
     (rowIndex: number, colIndex: number, newValue: string) => {
       const newRows = rows.map((row, rIdx) => {
@@ -88,12 +89,12 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, onChange],
   )
 
-  // Add a row
   const handleAddRow = useCallback(
     (afterIndex?: number) => {
+      const nextColCount = Math.max(colCount, 1)
       const newRow: TableRow = {
         _key: generateKey(),
-        cells: Array(colCount).fill(''),
+        cells: Array(nextColCount).fill(''),
       }
       const insertIndex = afterIndex !== undefined ? afterIndex + 1 : rows.length
       const newRows = [...rows.slice(0, insertIndex), newRow, ...rows.slice(insertIndex)]
@@ -102,17 +103,15 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, colCount, onChange],
   )
 
-  // Remove a row
   const handleRemoveRow = useCallback(
     (rowIndex: number) => {
-      if (rows.length <= 1) return // Keep at least one row
+      if (rows.length <= 1) return
       const newRows = rows.filter((_, idx) => idx !== rowIndex)
       onChange(set({_type: 'table', rows: newRows}))
     },
     [rows, onChange],
   )
 
-  // Add a column
   const handleAddColumn = useCallback(
     (afterIndex?: number) => {
       const insertIndex = afterIndex !== undefined ? afterIndex + 1 : colCount
@@ -126,10 +125,9 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, colCount, onChange],
   )
 
-  // Remove a column
   const handleRemoveColumn = useCallback(
     (colIndex: number) => {
-      if (colCount <= 1) return // Keep at least one column
+      if (colCount <= 1) return
       const newRows = rows.map((row) => ({
         ...row,
         cells: (row.cells || []).filter((_, idx) => idx !== colIndex),
@@ -139,7 +137,6 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, colCount, onChange],
   )
 
-  // Move row up/down
   const handleMoveRow = useCallback(
     (rowIndex: number, direction: 'up' | 'down') => {
       if (direction === 'up' && rowIndex === 0) return
@@ -154,7 +151,6 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, onChange],
   )
 
-  // Move column left/right
   const handleMoveColumn = useCallback(
     (colIndex: number, direction: 'left' | 'right') => {
       if (direction === 'left' && colIndex === 0) return
@@ -172,11 +168,9 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
     [rows, colCount, onChange],
   )
 
-  // Handle keyboard navigation
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, rowIndex: number, colIndex: number) => {
       if (!editingCell) {
-        // Navigation mode
         switch (e.key) {
           case 'ArrowUp':
             e.preventDefault()
@@ -205,44 +199,72 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
             }
             break
           default:
-            // Start editing on any character key
             if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
               setEditingCell({row: rowIndex, col: colIndex})
             }
         }
-      } else {
-        // Editing mode
-        if (e.key === 'Enter') {
-          e.preventDefault()
-          setEditingCell(null)
-          // Move to next row
-          if (rowIndex < rows.length - 1) {
-            setSelectedCell({row: rowIndex + 1, col: colIndex})
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setEditingCell(null)
+        return
+      }
+
+      if (e.key === 'Tab') {
+        e.preventDefault()
+
+        if (e.shiftKey) {
+          if (colIndex > 0) {
+            setSelectedCell({row: rowIndex, col: colIndex - 1})
+            setEditingCell({row: rowIndex, col: colIndex - 1})
+          } else if (rowIndex > 0) {
+            setSelectedCell({row: rowIndex - 1, col: colCount - 1})
+            setEditingCell({row: rowIndex - 1, col: colCount - 1})
           }
-        } else if (e.key === 'Escape') {
-          e.preventDefault()
-          setEditingCell(null)
-        } else if (e.key === 'Tab') {
-          e.preventDefault()
-          setEditingCell(null)
-          // Move to next/previous cell
-          if (e.shiftKey) {
-            if (colIndex > 0) {
-              setEditingCell({row: rowIndex, col: colIndex - 1})
-            } else if (rowIndex > 0) {
-              setEditingCell({row: rowIndex - 1, col: colCount - 1})
-            }
-          } else {
-            if (colIndex < colCount - 1) {
-              setEditingCell({row: rowIndex, col: colIndex + 1})
-            } else if (rowIndex < rows.length - 1) {
-              setEditingCell({row: rowIndex + 1, col: 0})
-            }
-          }
+          return
         }
+
+        if (colIndex < colCount - 1) {
+          setSelectedCell({row: rowIndex, col: colIndex + 1})
+          setEditingCell({row: rowIndex, col: colIndex + 1})
+          return
+        }
+
+        if (rowIndex < rows.length - 1) {
+          setSelectedCell({row: rowIndex + 1, col: 0})
+          setEditingCell({row: rowIndex + 1, col: 0})
+          return
+        }
+
+        const nextRow = rows.length
+        handleAddRow()
+        setTimeout(() => {
+          setSelectedCell({row: nextRow, col: 0})
+          setEditingCell({row: nextRow, col: 0})
+        }, 0)
+        return
+      }
+
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault()
+
+        if (rowIndex < rows.length - 1) {
+          setSelectedCell({row: rowIndex + 1, col: colIndex})
+          setEditingCell({row: rowIndex + 1, col: colIndex})
+          return
+        }
+
+        const nextRow = rows.length
+        handleAddRow()
+        setTimeout(() => {
+          setSelectedCell({row: nextRow, col: colIndex})
+          setEditingCell({row: nextRow, col: colIndex})
+        }, 0)
       }
     },
-    [editingCell, rows.length, colCount, selectedCell, handleCellChange],
+    [editingCell, rows.length, colCount, selectedCell, handleCellChange, handleAddRow],
   )
 
   const clearTable = () => {
@@ -252,27 +274,64 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
   }
 
   if (!value?.rows || rows.length === 0) {
+    if (readOnly) {
+      return (
+        <Card padding={4} radius={2} shadow={1} tone="default">
+          <Text size={1} muted>
+            No table content
+          </Text>
+        </Card>
+      )
+    }
+
     return (
       <Card padding={4} radius={2} shadow={1} tone="default">
-        <Flex justify="center" align="center" direction="column" gap={3}>
-          <Text size={1} muted>
-            No table data
+        <Stack space={4}>
+          <Text size={1} weight="semibold">
+            Insert table
           </Text>
-          <Button
-            text="Create Table"
-            tone="primary"
-            onClick={handleInitializeTable}
-            disabled={readOnly}
-            icon={AddIcon}
-          />
-        </Flex>
+          <Stack space={2}>
+            <Text size={1} muted>
+              {hoveredSize ? `${hoveredSize.rows} × ${hoveredSize.cols}` : 'Select size'}
+            </Text>
+            <Box
+              style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${PICKER_MAX_COLS}, 20px)`,
+                gap: '4px',
+                width: 'fit-content',
+              }}
+              onMouseLeave={() => setHoveredSize(null)}
+            >
+              {Array.from({length: PICKER_MAX_ROWS * PICKER_MAX_COLS}).map((_, index) => {
+                const row = Math.floor(index / PICKER_MAX_COLS) + 1
+                const col = (index % PICKER_MAX_COLS) + 1
+                const active = Boolean(hoveredSize && row <= hoveredSize.rows && col <= hoveredSize.cols)
+
+                return (
+                  <Box
+                    key={`size-${row}-${col}`}
+                    onMouseEnter={() => setHoveredSize({rows: row, cols: col})}
+                    onClick={() => handleInitializeTable(row, col)}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      border: active ? '1px solid #156dff' : '1px solid #d8d8d8',
+                      background: active ? '#dbe9ff' : '#ffffff',
+                      cursor: 'pointer',
+                    }}
+                  />
+                )
+              })}
+            </Box>
+          </Stack>
+        </Stack>
       </Card>
     )
   }
 
   return (
     <Card padding={0} radius={2} shadow={1} tone="default" overflow="hidden">
-      {/* Toolbar */}
       <Card padding={3} tone="transparent" borderBottom>
         <Flex justify="space-between" align="center">
           <Inline space={2}>
@@ -310,11 +369,9 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         </Flex>
       </Card>
 
-      {/* Table Canvas */}
       <Box padding={4}>
         <Flex justify="center">
           <Box style={{position: 'relative'}}>
-            {/* Column Controls - Top */}
             <Flex style={{marginLeft: '40px', marginBottom: '4px'}}>
               {Array.from({length: colCount}).map((_, colIdx) => (
                 <Flex
@@ -322,7 +379,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
                   justify="center"
                   align="center"
                   style={{
-                    width: '140px',
+                    width: '180px',
                     padding: '4px',
                     borderRadius: '4px',
                     background: hoveredCol === colIdx ? '#f0f0f0' : 'transparent',
@@ -368,7 +425,6 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
             </Flex>
 
             <Flex>
-              {/* Row Controls - Left */}
               <Stack space={1} style={{marginRight: '4px', width: '36px'}}>
                 {rows.map((_, rowIdx) => (
                   <Flex
@@ -376,7 +432,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
                     justify="center"
                     align="center"
                     style={{
-                      height: '44px',
+                      minHeight: '56px',
                       borderRadius: '4px',
                       background: hoveredRow === rowIdx ? '#f0f0f0' : 'transparent',
                       transition: 'background 0.15s ease',
@@ -420,7 +476,6 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
                 ))}
               </Stack>
 
-              {/* Table Grid */}
               <table
                 style={{
                   borderCollapse: 'collapse',
@@ -434,8 +489,7 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
                     <tr key={row._key || rowIdx}>
                       {(row.cells || []).map((cell, colIdx) => {
                         const isEditing = editingCell?.row === rowIdx && editingCell?.col === colIdx
-                        const isSelected =
-                          selectedCell?.row === rowIdx && selectedCell?.col === colIdx
+                        const isSelected = selectedCell?.row === rowIdx && selectedCell?.col === colIdx
                         const isHeader = rowIdx === 0
 
                         return (
@@ -456,32 +510,38 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
                               cursor: readOnly ? 'default' : 'pointer',
                               outline: isSelected ? '2px solid #156dff' : 'none',
                               outlineOffset: '-2px',
-                              minWidth: '140px',
-                              height: '44px',
+                              minWidth: '180px',
+                              minHeight: '56px',
+                              verticalAlign: 'top',
                             }}
                           >
                             {isEditing ? (
-                              <TextInput
+                              <TextArea
                                 ref={inputRef}
                                 value={cell || ''}
-                                onChange={(e) =>
-                                  handleCellChange(rowIdx, colIdx, e.currentTarget.value)
+                                onChange={(e) => handleCellChange(rowIdx, colIdx, e.currentTarget.value)}
+                                onKeyDown={(e) => handleKeyDown(e, rowIdx, colIdx)}
+                                onBlur={() =>
+                                  setEditingCell((current) =>
+                                    current?.row === rowIdx && current?.col === colIdx ? null : current,
+                                  )
                                 }
-                                onBlur={() => setEditingCell(null)}
                                 style={{
                                   border: 'none',
                                   background: 'transparent',
                                   fontWeight: isHeader ? 600 : 400,
+                                  minHeight: '56px',
+                                  resize: 'vertical',
                                 }}
+                                rows={2}
                                 fontSize={2}
                               />
                             ) : (
                               <Box
                                 padding={3}
                                 style={{
-                                  minHeight: '44px',
-                                  display: 'flex',
-                                  alignItems: 'center',
+                                  minHeight: '56px',
+                                  whiteSpace: 'pre-wrap',
                                   fontWeight: isHeader ? 600 : 400,
                                   color: cell ? '#1a1a1a' : '#999',
                                 }}
@@ -503,14 +563,13 @@ export function TableCanvasInput(props: ObjectInputProps<TableValue>) {
         </Flex>
       </Box>
 
-      {/* Footer Info */}
       <Card padding={3} tone="transparent" borderTop>
         <Flex justify="space-between" align="center">
           <Text size={1} muted>
             {rows.length} rows × {colCount} columns
           </Text>
           <Text size={1} muted>
-            Click to edit • Tab to navigate • Enter to move down
+            Click to edit • Tab to navigate • Enter for newline • Ctrl+Enter moves down
           </Text>
         </Flex>
       </Card>
