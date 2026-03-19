@@ -27,6 +27,23 @@ jobs:
           model: "openrouter/openai/gpt-5.3-codex"
           mentions: "/bonk,@ask-bonk"
           prompt: |
-            Review this PR for bugs, security issues, and style. Leave suggestions
-            on specific line numbers. Consider the wider context of each file and
-            follow the repository's existing conventions.
+            Review this PR for bugs, security issues, logic flaws, and style. You must format your response EXACTLY following this structure:
+
+            **Bonk Summary**
+            Write a concise paragraph summarizing the PR's core improvements. Quantify changes where possible (e.g., lines duplicated/removed, files consolidated, architectural shifts).
+
+            **Issues to Address**
+            List actionable issues to address before merging. If none, state "None". Format strictly as:
+            * **[Brief Issue Title]** — [Detailed description of the issue, the file/line it occurs on, and the potential impact (e.g., silent failure, type-safety gap)].
+
+            **Confidence Score: [X]/5**
+            Provide a score from 1 to 5 based on the safety and quality of the code.
+
+            **Merge Recommendation**
+            State clearly if it is safe to merge, conditional on which specific issues being fixed. Provide a brief rationale summarizing the risk level of the findings.
+
+            **Focus Areas**
+            List the specific files the human reviewer should pay closest attention to, alongside the specific reason why (e.g., "Pay close attention to src/components/x.tsx (clipboard error UX)").
+            
+            Maintain a highly technical, objective, and analytical tone. Do not use filler introductions. Follow the repository's existing conventions.
+
