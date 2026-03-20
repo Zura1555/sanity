@@ -45,5 +45,5 @@ jobs:
             **Focus Areas**
             List the specific files the human reviewer should pay closest attention to, alongside the specific reason why (e.g., "Pay close attention to src/components/x.tsx (clipboard error UX)").
             
-            Maintain a highly technical, objective, and analytical tone. Do not use filler introductions. Follow the repository's existing conventions.
+            Maintain a highly technical, objective, and analytical tone. Do not use filler introductions. Leave suggestions on specific line numbers. Consider the wider context of each file and follow the repository's existing conventions.
 
